@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Vue app</title>
+    <style>
+        .box {
+            background-color: purple;
+            height: 200px;
+            width: 200px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        input{
+            margin:10px;
+            display:block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+
+        <login-form/>
+
+        <p>{{greeting}}</p>
+        <input v-model="greeting" />
+        <input v-on:keyup.enter="greet(greeting)" v-model="greeting" />
+
+        <hr />
+
+        <button v-on:click="isVisible = !isVisible">click me</button>
+        <button @click="isVisible = !isVisible">click me</button>
+
+        <button @click="toggle">click me</button>
+
+        <div v-show="isVisible" class="box">1</div>
+        <div v-if="isVisible" class="box">1</div>
+        <div v-else-if="isVisibl2" class="box">2</div>
+        <div v-else class="box">3</div>
+
+
+
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        let app = Vue.createApp({
+            data: function () {
+                return {
+                    greeting: "Hello!",
+                    isVisible: false,
+                    isVisibl2: true
+                }
+            },
+            methods: {
+                toggle(){
+                    this.isVisible = !this.isVisible
+                },
+                greet(greetingText){
+                    console.log(greetingText)
+                }
+            }
+        })
+
+        app.component("login-form", {
+            template:`
+            <form v-on:submit.prevent="submit">
+                <h1>{{title}}</h1>
+                <p v-for="(str,i) in inputs" v-bind:key="str">{{i}} + {{str}}</p>
+                <custom-input v-model="email" :label="emaillabel"/>
+                <custom-input v-model="password" v-bind:label="pswdlabel"/>
+                <hr/>
+                <custom-input 
+                    v-for="(input,i) in inputsFields" v-bind:key="input.label"
+                    v-model="input.value"
+                    v-bind:label="input.label"
+                />
+
+                <button>Login</button>
+            </form>
+            `,
+            components:["custom-input"],
+            data: function(){
+                return{
+                    title: "loginform",
+                    inputs:[
+                        "email","password", "name"
+                    ],
+                    inputsFields:[
+                        {
+                            label: "email",
+                            value:"",
+                            type:"email"
+                        },
+                        {
+                            label: "password",
+                            value:"",
+                            type:"password"
+                        }
+                    ],
+                    email:"ee",
+                    password:"rr",
+                    emaillabel: "This is an emaillabel",
+                    pswdlabel: "This is an pswdlabel",
+                }
+            },
+            methods:{
+                submit(){
+                    console.log("hello " + this.email + " with password " + this.password)
+                    console.log("hello " + this.inputsFields[0].value + " with password " + this.inputsFields[1].value)
+                }
+            }
+        })
+
+        app.component("custom-input", {
+            template:`
+                <label> {{ label }}
+                <input type="text" v-model="inputValue"/>
+                </label>
+            `,
+            // data: function(){
+            //     return{
+            //         text:""
+            //     }
+            // },
+            methods:{
+            },
+            props:['label',"modelValue"],
+            computed:{
+                inputValue:{
+                    get(){
+                        return this.modelValue
+                    },
+                    set(value){
+                        console.log(value)
+                        this.$emit("update:modelValue", value) //Een event aanmaken
+                    }
+                }
+            }
+        })
+
+
+        app.mount('#app')
+    </script>
+</body>
+
+</html>
